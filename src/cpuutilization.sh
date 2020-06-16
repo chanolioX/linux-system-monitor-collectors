@@ -39,6 +39,7 @@
 VERSION="1.0.0"
 PROGRAM="DataCollector"
 
+PRINT=$(type -P printf)
 ECHO=$(type -P echo)
 SED=$(type -P sed)
 GREP=$(type -P grep)
@@ -92,25 +93,25 @@ cpu_utilization() {
 
 		# Calculate the total CPU time.
 		TOTAL=0
-		for VALUE in "${CPU[@]}"; do
+		for VALUE in ${CPU[@]}; do
 			let "TOTAL=$TOTAL+$VALUE"
 		done
 
 		# Calculate the CPU usage since we last checked.
 		let "DIFF_IDLE=$IDLE-$PREV_IDLE"
 		let "DIFF_TOTAL=$TOTAL-$PREV_TOTAL"
-		let "DIFF_USAGE=(1000*($DIFF_TOTAL-$DIFF_IDLE)/$DIFF_TOTAL+5)/10"
+		let "DIFF_USAGE=(1000 * ($DIFF_TOTAL-$DIFF_IDLE) / $DIFF_TOTAL+5) / 10"
 		#echo -en "\rCPU: $DIFF_USAGE%  \b\b"
 
 		# Remember the total and idle CPU times for the next check.
-		PREV_TOTAL="$TOTAL"
-		PREV_IDLE="$IDLE"
+		PREV_TOTAL=$TOTAL
+		PREV_IDLE=$IDLE
 
 		# Wait before checking again.
 		sleep 1
-		iteration="$iteration+1"
+		iteration=$iteration+1
 	done
-	$ECHO "$DIFF_USAGE"
+	$PRINT '{"cpuutilization":"%d"}\n' $DIFF_USAGE
 }
 
 # My Script Version
